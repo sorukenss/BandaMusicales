@@ -1,8 +1,10 @@
 import 'dart:io';
-
-import 'package:dand_names/models/models.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:dand_names/models/models.dart';
+import 'package:dand_names/services/services.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -23,13 +25,36 @@ class _HomeScreenState extends State<HomeScreen> {
       Banda(id: '3', name: 'Pop', votos: 2),
     ];
 
+
+     @override
+    void initState() {
+      final socketServises = Provider.of<SocketService>(context,listen: false);
+      socketServises.socket.on('active-bands', (payload) {
+        print(payload);
+      });
+
+      super.initState();
+      
+    }
+
   @override
   Widget build(BuildContext context) {
+
+    final socketServises = Provider.of<SocketService>(context);
+
     return Scaffold(
     appBar: AppBar(
       title: const Text('Bandas',style: TextStyle(color: Colors.black87),),
       backgroundColor: Colors.white,
       elevation: 1,
+      actions: [
+        Container(
+          margin: const  EdgeInsets.only(right: 10),
+          child: socketServises.serverStatus == ServerStatus.Online
+          ?Icon(Icons.check_circle, color: Colors.blue[300],)
+          :Icon(Icons.offline_bolt, color: Colors.red[300],),
+        )
+      ],
     ),
     body: ListView.builder(
       itemCount: bandas.length,
